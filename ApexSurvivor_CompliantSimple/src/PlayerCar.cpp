@@ -1,4 +1,5 @@
 #include "PlayerCar.h"
+#include <SFML/Graphics.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <algorithm>
 #include <cmath>
@@ -11,11 +12,13 @@ PlayerCar::PlayerCar(sf::Vector2f startPosition)
       shieldTimer(0.0f),
       angle(0.0f),
       velocity(0.0f, 0.0f),
-      hasTexture(false) {
+      hasTexture(false)
+{
     hasTexture = texture.loadFromFile("assets/f1_car.png");
 }
 
-void PlayerCar::update(float dt) {
+void PlayerCar::update(float dt)
+{
     const float turnSpeed = 180.0f;
 
     const float speed = boostTimer > 0.0f
@@ -34,7 +37,7 @@ void PlayerCar::update(float dt) {
         angle += turnSpeed * dt;
     }
 
-    float radians = angle * 3.14159265f / 180.0f;
+    const float radians = angle * 3.14159265f / 180.0f;
 
     sf::Vector2f forward(
         std::sin(radians),
@@ -59,71 +62,96 @@ void PlayerCar::update(float dt) {
     keepInsideWindow();
 }
 
-void PlayerCar::draw(sf::RenderWindow& window) const {
-    if (hasTexture) {
+void PlayerCar::draw(sf::RenderWindow& window) const
+{
+    if (hasTexture)
+    {
         sf::Sprite car(texture);
-        car.setOrigin(texture.getSize().x / 2.0f, texture.getSize().y / 2.0f);
+    car.setOrigin(texture.getSize().x / 2.0f, texture.getSize().y / 2.0f);
+    car.setPosition(position);
+    car.setRotation(angle - 90.0f);
+    car.setScale(0.30f, 0.30f);
+    window.draw(car);
+    }
+    else
+    {
+        sf::CircleShape car(radius);
+        car.setOrigin(radius, radius);
         car.setPosition(position);
         car.setRotation(angle);
-        car.setScale(0.38f, 0.38f);
+        car.setFillColor(sf::Color::Red);
         window.draw(car);
+    }
 
-        // Simple blue circle shows that the shield effect is active.
-        if (shieldTimer > 0.0f) {
-            sf::CircleShape shield(radius + 8.0f);
-            shield.setOrigin(radius + 8.0f, radius + 8.0f);
-            shield.setPosition(position);
-            shield.setFillColor(sf::Color(80, 180, 255, 80));
-            shield.setOutlineColor(sf::Color(80, 180, 255));
-            shield.setOutlineThickness(2.0f);
-            window.draw(shield);
-        }
+    if (shieldTimer > 0.0f)
+    {
+        sf::CircleShape shield(radius + 8.0f);
+        shield.setOrigin(radius + 8.0f, radius + 8.0f);
+        shield.setPosition(position);
+        shield.setFillColor(sf::Color::Transparent);
+        shield.setOutlineThickness(3.0f);
+        shield.setOutlineColor(sf::Color::Cyan);
+        window.draw(shield);
+    }
+}
+
+void PlayerCar::takeDamage(int damage)
+{
+    if (shieldTimer > 0.0f)
+    {
         return;
     }
 
-    // Fallback drawing: used only if assets/f1_car.png is missing.
-    sf::RectangleShape car({64.0f, 34.0f});
-    car.setOrigin(32.0f, 17.0f);
-    car.setPosition(position);
-    car.setRotation(angle);
-    car.setFillColor(shieldTimer > 0.0f ? sf::Color(80, 180, 255) : sf::Color(210, 40, 40));
-    window.draw(car);
+    hp -= damage;
 
-    sf::RectangleShape cockpit({18.0f, 18.0f});
-    cockpit.setOrigin(9.0f, 9.0f);
-    cockpit.setPosition(position);
-    cockpit.setFillColor(sf::Color(30, 30, 30));
-    window.draw(cockpit);
-}
-
-void PlayerCar::takeDamage(int damage) {
-    if (shieldTimer > 0.0f) {
-        damage /= 2;
+    if (hp < 0)
+    {
+        hp = 0;
     }
-    hp = std::max(0, hp - damage);
 }
 
-void PlayerCar::repair(int amount) {
-    hp = std::min(Constants::PlayerMaxHp, hp + amount);
+void PlayerCar::repair(int amount)
+{
+    hp += amount;
+
+    if (hp > Constants::PlayerMaxHp)
+    {
+        hp = Constants::PlayerMaxHp;
+    }
 }
 
-void PlayerCar::addTelemetry() {
+void PlayerCar::addTelemetry()
+{
     telemetry++;
 }
-void PlayerCar::activateBoost() {
+
+void PlayerCar::activateBoost()
+{
     boostTimer = 4.0f;
 }
-void PlayerCar::activateShield() {
+
+void PlayerCar::activateShield()
+{
     shieldTimer = 5.0f;
 }
 
-int PlayerCar::getHp() const { return hp; }
-int PlayerCar::getTelemetry() const {
- return telemetry; }
-bool PlayerCar::hasWon() const {
-    return telemetry >= Constants::TelemetryToWin; }
+int PlayerCar::getHp() const
+{
+    return hp;
+}
 
-void PlayerCar::keepInsideWindow() {
-    position.x = std::clamp(position.x, radius, Constants::WindowWidth - radius);
-    position.y = std::clamp(position.y, radius, Constants::WindowHeight - radius);
+int PlayerCar::getTelemetry() const
+{
+    return telemetry;
+}
+
+bool PlayerCar::hasWon() const
+{
+    return telemetry >= Constants::TelemetryToWin;
+}
+
+void PlayerCar::keepInsideWindow()
+{
+    position.x = std::max(radius, std::min(position.x, Constants::WindowWidth - radius));
+    position.y = std::max(radius, std::min(position.y, Constants::WindowHeight - radius));
 }
