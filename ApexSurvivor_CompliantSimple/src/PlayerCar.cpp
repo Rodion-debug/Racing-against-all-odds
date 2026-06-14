@@ -16,16 +16,11 @@ PlayerCar::PlayerCar(sf::Vector2f startPosition)
 }
 
 void PlayerCar::update(float dt) {
-    const float acceleration = 520.0f;
-    const float reverseAcceleration = 300.0f;
-    const float friction = 0.96f;
-    const float turnSpeed = 170.0f;
+    const float turnSpeed = 180.0f;
 
-    const float maxSpeed = boostTimer > 0.0f
+    const float speed = boostTimer > 0.0f
         ? Constants::PlayerBoostSpeed
         : Constants::PlayerSpeed;
-
-    bool accelerating = false;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
@@ -49,30 +44,14 @@ void PlayerCar::update(float dt) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
     {
-        velocity += forward * acceleration * dt;
-        accelerating = true;
+        position += forward * speed * dt;
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
     {
-        velocity -= forward * reverseAcceleration * dt;
-        accelerating = true;
+        position -= forward * speed * 0.65f * dt;
     }
-
-    float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-
-    if (speed > maxSpeed)
-    {
-        velocity = velocity / speed * maxSpeed;
-    }
-
-    if (!accelerating)
-    {
-        velocity *= friction;
-    }
-
-    position += velocity * dt;
 
     boostTimer = std::max(0.0f, boostTimer - dt);
     shieldTimer = std::max(0.0f, shieldTimer - dt);
