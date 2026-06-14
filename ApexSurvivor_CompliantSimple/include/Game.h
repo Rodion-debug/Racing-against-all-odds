@@ -16,6 +16,7 @@ private:
     sf::Font font;
 
     // Single container for all game objects.
+    // It stores enemies and collectibles through pointers to the base class.
     std::vector<std::unique_ptr<GameObject>> objects;
     PlayerCar* player;
 

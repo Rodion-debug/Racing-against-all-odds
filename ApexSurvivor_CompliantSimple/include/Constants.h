@@ -1,7 +1,7 @@
 #pragma once
 
 // All important game parameters are kept here instead of being hidden in code.
-// This makes the game easy to balance during presentation.
+// Changing these values allows quick balancing without modifying game logic.
 namespace Constants {
     constexpr unsigned WindowWidth = 1200;
     constexpr unsigned WindowHeight = 800;

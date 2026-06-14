@@ -10,6 +10,7 @@ void Collectible::update(float dt) {
     pulse += dt * 4.0f; // small animation: the item breathes/pulses
 }
 
+// Draws the collectible item using its texture.
 void Collectible::draw(sf::RenderWindow& window) const {
     const float animatedRadius = radius + std::sin(pulse) * 3.0f;
 
@@ -29,7 +30,7 @@ void Collectible::draw(sf::RenderWindow& window) const {
     item.setFillColor(color);
     window.draw(item);
 }
-
+// Applies the collectible effect to the player depending on its type.
 TelemetryData::TelemetryData(sf::Vector2f startPosition)
     : Collectible(startPosition, sf::Color(80, 170, 255), "assets/telemetry.png") {}
 void TelemetryData::apply(PlayerCar& player) { player.addTelemetry(); }

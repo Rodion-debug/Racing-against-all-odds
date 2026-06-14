@@ -10,7 +10,9 @@ public:
     virtual ~GameObject() = default;
 
     // Pure virtual functions: every derived object must implement them.
+    // Updates object logic using delta time.
     virtual void update(float dt) = 0;
+    // Draws the object on the game window.
     virtual void draw(sf::RenderWindow& window) const = 0;
 
     sf::Vector2f getPosition() const;

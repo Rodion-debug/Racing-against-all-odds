@@ -16,7 +16,9 @@ PlayerCar::PlayerCar(sf::Vector2f startPosition)
 {
     hasTexture = texture.loadFromFile("assets/f1_car.png");
 }
-
+// Handles arcade-style car movement.
+// The car rotates with A/D and moves forward or backward
+// in the direction it is currently facing.
 void PlayerCar::update(float dt)
 {
     const float turnSpeed = 180.0f;
@@ -61,7 +63,7 @@ void PlayerCar::update(float dt)
 
     keepInsideWindow();
 }
-
+// Draws the player car sprite and the shield effect if it is active.
 void PlayerCar::draw(sf::RenderWindow& window) const
 {
     if (hasTexture)
@@ -94,7 +96,7 @@ void PlayerCar::draw(sf::RenderWindow& window) const
         window.draw(shield);
     }
 }
-
+// Reduces player HP unless the shield is currently active.
 void PlayerCar::takeDamage(int damage)
 {
     if (shieldTimer > 0.0f)
@@ -124,12 +126,12 @@ void PlayerCar::addTelemetry()
 {
     telemetry++;
 }
-
+// Temporarily increases the player's movement speed.
 void PlayerCar::activateBoost()
 {
     boostTimer = 4.0f;
 }
-
+// Activates temporary protection from enemy damage.
 void PlayerCar::activateShield()
 {
     shieldTimer = 5.0f;

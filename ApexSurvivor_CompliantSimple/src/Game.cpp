@@ -23,7 +23,8 @@ Game::Game()
 
     createPlayer();
 }
-
+// Main game loop. It calculates delta time, processes events,
+// updates game logic and renders the current frame.
 void Game::run() {
     sf::Clock clock;
 
@@ -61,7 +62,8 @@ void Game::processEvents() {
         }
     }
 }
-
+// Updates the whole game state: player, enemies, collectibles,
+// timers, collisions and win/lose conditions.
 void Game::update(float dt) {
     enemySpawnTimer += dt;
     itemSpawnTimer += dt;
@@ -91,7 +93,7 @@ void Game::update(float dt) {
         victory = true;
     }
 }
-
+// Draws the background, player, game objects and user interface.
 void Game::render() {
     window.clear(sf::Color(38, 42, 38));
 
@@ -121,7 +123,8 @@ void Game::createPlayer() {
     player = newPlayer.get();
     objects.push_back(std::move(newPlayer));
 }
-
+// Creates a new enemy at a random edge of the map.
+// Randomness makes every game attempt slightly different.
 void Game::spawnEnemy() {
     std::uniform_int_distribution<int> type(0, 1);
     if (type(rng) == 0) {
@@ -130,7 +133,7 @@ void Game::spawnEnemy() {
         objects.push_back(std::make_unique<HeavyDrone>(randomEdgePosition(), player));
     }
 }
-
+// Creates a random collectible item inside the arena.
 void Game::spawnItem() {
     std::uniform_int_distribution<int> type(0, 3);
     const sf::Vector2f position = randomInsidePosition();
@@ -142,7 +145,9 @@ void Game::spawnItem() {
         default: objects.push_back(std::make_unique<ShieldBox>(position)); break;
     }
 }
-
+// Checks collisions between the player and all game objects.
+// Dynamic casting is used to determine whether the object is
+// an enemy or a collectible.
 void Game::checkCollisions() {
     for (auto& object : objects) {
         if (object.get() == player || !object->isAlive()) {

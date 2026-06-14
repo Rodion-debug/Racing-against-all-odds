@@ -11,7 +11,9 @@ Enemy::Enemy(sf::Vector2f startPosition, float collisionRadius, PlayerCar* playe
       hasTexture(false) {
     hasTexture = texture.loadFromFile(textureFile);
 }
-
+// Moves the enemy toward the player position using delta time,
+ // so movement speed does not depend on frame rate.
+ // Different enemy types use different movement speeds and damage values.
 void Enemy::update(float dt) {
     if (!target) return;
 
