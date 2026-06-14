@@ -25,6 +25,7 @@ private:
     float boostTimer;
     float shieldTimer;
     float angle;
+    sf::Vector2f velocity;
 
     // Texture is loaded once in the constructor. If loading fails, the old
     // rectangle drawing is used, so the game still works without PNG files.

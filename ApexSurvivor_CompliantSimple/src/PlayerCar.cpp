@@ -10,35 +10,73 @@ PlayerCar::PlayerCar(sf::Vector2f startPosition)
       boostTimer(0.0f),
       shieldTimer(0.0f),
       angle(0.0f),
+      velocity(0.0f, 0.0f),
       hasTexture(false) {
     hasTexture = texture.loadFromFile("assets/f1_car.png");
 }
 
 void PlayerCar::update(float dt) {
-    sf::Vector2f movement(0.0f, 0.0f);
+    const float acceleration = 520.0f;
+    const float reverseAcceleration = 300.0f;
+    const float friction = 0.96f;
+    const float turnSpeed = 170.0f;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        movement.y -= 1.0f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-        movement.y += 1.0f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-        movement.x -= 1.0f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-        movement.x += 1.0f;
+    const float maxSpeed = boostTimer > 0.0f
+        ? Constants::PlayerBoostSpeed
+        : Constants::PlayerSpeed;
 
-    const bool isMoving = movement.x != 0.0f || movement.y != 0.0f;
-    if (isMoving) {
-        // Normalize diagonal movement so diagonal driving is not faster.
-        const float length = std::sqrt(movement.x * movement.x + movement.y * movement.y);
-        movement /= length;
+    bool accelerating = false;
 
-        const float speed = boostTimer > 0.0f ? Constants::PlayerBoostSpeed : Constants::PlayerSpeed;
-        position += movement * speed * dt;
-        angle += 140.0f * dt; // simple animation to show movement
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
+        angle -= turnSpeed * dt;
     }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        angle += turnSpeed * dt;
+    }
+
+    float radians = angle * 3.14159265f / 180.0f;
+
+    sf::Vector2f forward(
+        std::sin(radians),
+        -std::cos(radians)
+    );
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    {
+        velocity += forward * acceleration * dt;
+        accelerating = true;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+    {
+        velocity -= forward * reverseAcceleration * dt;
+        accelerating = true;
+    }
+
+    float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+
+    if (speed > maxSpeed)
+    {
+        velocity = velocity / speed * maxSpeed;
+    }
+
+    if (!accelerating)
+    {
+        velocity *= friction;
+    }
+
+    position += velocity * dt;
 
     boostTimer = std::max(0.0f, boostTimer - dt);
     shieldTimer = std::max(0.0f, shieldTimer - dt);
+
     keepInsideWindow();
 }
 
